@@ -1,9 +1,9 @@
 #include <vector>
 #include <map>
 #include <algorithm>
-#include <iostream>
 using namespace std;
 
+// Float vector with standard operations
 template <unsigned int N>
 class Vector {
 public:
@@ -16,10 +16,14 @@ public:
         coords[0] = c0;
         coords[1] = c1;
     }
-    Vector(float c0, float c1, float c3) {
+    Vector(float c0, float c1, float c2) {
         coords[0] = c0;
         coords[1] = c1;
+        coords[2] = c2;
     }
+
+    // add more constructors when N gets > 3
+
     float& operator[](int i) {
         return coords[i];
     }
@@ -85,9 +89,10 @@ private:
     float coords[N];
 };
 
-typedef Vector<3> Vec3f;
 typedef Vector<2> Vec2f;
+typedef Vector<3> Vec3f;
 
+// This class stores known values for vectors. It throws unknown vectors.
 template <unsigned int N>
 class ValueDB {
     public:
@@ -105,15 +110,10 @@ class ValueDB {
         }
     private:
         bool contains(Vector<N> vec) {
-            typename map<Vector<N>, float>::iterator it = values.find(vec); // TODO tolerance
+            typename map<Vector<N>, float>::iterator it = values.find(vec); // TODO add tolerance
             return it != values.end();
         }
         map<Vector<N>, float> values;
-};
-
-template <unsigned int N>
-class VectorComparer {
-    public:
 };
 
 template <unsigned int N>
@@ -125,6 +125,7 @@ class NelderMeadOptimizer {
             rho = -0.5;
             sigma = 0.5;
         }
+        // used in `step` to sort the vectors
         bool operator()(const Vector<N>& a, const Vector<N>& b) {
             return db.lookup(a) < db.lookup(b);
         }
@@ -135,6 +136,8 @@ class NelderMeadOptimizer {
             db.insert(vec, score);
             try {
                 Vector<N> result;
+                // as long as we don't have enough vectors, request random ones,
+                // with coordinates between 0 and 1.
                 if (vectors.size() < N+1) {
                     vectors.push_back(vec);
                     for (int i = 0; i<N; ++i) {
@@ -142,7 +145,9 @@ class NelderMeadOptimizer {
                     }
                 }
 
+                // otherwise: optimize!
                 if (vectors.size() == N+1) {
+                    // TODO prevent infinite loops
                     while(true) {
                         sort(vectors.begin(), vectors.end(), *this);
                         Vector<N> cog; // center of gravity
@@ -153,11 +158,12 @@ class NelderMeadOptimizer {
                         Vector<N> best = vectors[N];
                         Vector<N> worst = vectors[0];
                         Vector<N> second_worst = vectors[1];
-                        // reflection
+                        // reflect
                         Vector<N> reflected = cog + (cog - worst)*alpha;
                         if (f(reflected) > f(second_worst) && f(reflected) < f(best)) {
                             vectors[0] = reflected;
                         } else if (f(reflected) > f(best)) {
+                            // expand
                             Vector<N> expanded = cog + (cog - worst)*gamma;
                             if (f(expanded) > f(reflected)) {
                                 vectors[0] = expanded;
@@ -165,6 +171,7 @@ class NelderMeadOptimizer {
                                 vectors[0] = reflected;
                             }
                         } else {
+                            // contract
                             Vector<N> contracted = cog + (cog - worst)*rho;
                             if (f(contracted) > f(worst)) {
                                 vectors[0] = contracted;

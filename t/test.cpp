@@ -3,16 +3,17 @@
 #include <cmath>
 #include "../src/optimizer.cpp"
 
-TEST_CASE("vector/basic", "") {
+TEST_CASE("vector/operations", "") {
     Vector<3> a(1,2,3);
     Vector<3> b(1,2,3);
-    Vector<3> c(2,4,6);
-    Vector<3> c2(3,6,9);
     Vec3f d;
+
     d = a+b;
+    Vector<3> c(2,4,6);
     REQUIRE(d == c);
 
     d = a*3;
+    Vector<3> c2(3,6,9);
     REQUIRE(d == c2);
 
     d = c2/3;
@@ -22,18 +23,18 @@ TEST_CASE("vector/basic", "") {
     REQUIRE(d == a);
 }
 
-TEST_CASE("create", "") {
+TEST_CASE("nmo/create", "") {
     NelderMeadOptimizer<2> o;
 }
 
-TEST_CASE("syntax", "") {
+TEST_CASE("nmo/one_step", "") {
     NelderMeadOptimizer<2> o;
 
     Vec2f a(0.5, 0.5);
     Vec2f new_values = o.step(a, 1);
 }
 
-TEST_CASE("functionality", "") {
+TEST_CASE("nmo/full", "") {
     NelderMeadOptimizer<2> o;
     Vec2f a(0,0);
     Vec2f b(1,0);
@@ -60,13 +61,15 @@ TEST_CASE("functionality", "") {
     REQUIRE(result == i);
 }
 
+// a function with two maxima at (1.5|0) and (-1.5|0),
+// looks like camel humps ;-)
 float f(Vec2f v) {
     float x = v[0];
     float y = v[1];
     return ((-x*x*x*x+4.5*x*x+2)/pow(2.71828,2*y*y));
 }
 
-TEST_CASE("camel", "") {
+TEST_CASE("nmo/functionality", "") {
     NelderMeadOptimizer<2> o;
     Vec2f a(2,1);
     Vec2f b(-1,0.534);
