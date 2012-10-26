@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include <cmath>
-#include "../src/optimizer.cpp"
+#include "../src/optimizer.h"
 
 TEST_CASE("vector/operations", "") {
     Vector<3> a(1,2,3);
