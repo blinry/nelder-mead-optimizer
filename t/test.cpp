@@ -27,14 +27,15 @@ TEST_CASE("nmo/create", "") {
     NelderMeadOptimizer<2> o;
 }
 
-TEST_CASE("nmo/one_step", "") {
+TEST_CASE("nmo/syntax", "") {
     NelderMeadOptimizer<2> o;
 
     Vec2f a(0.5, 0.5);
     Vec2f new_values = o.step(a, 1);
 }
 
-TEST_CASE("nmo/full", "") {
+// test all operations in a complete run
+TEST_CASE("nmo/operations", "") {
     NelderMeadOptimizer<2> o;
     Vec2f a(0,0);
     Vec2f b(1,0);
@@ -70,17 +71,22 @@ float f(Vec2f v) {
 }
 
 TEST_CASE("nmo/functionality", "") {
-    NelderMeadOptimizer<2> o;
-    Vec2f a(2,1);
-    Vec2f b(-1,0.534);
-    Vec2f c(-1.0324,-1);
+    NelderMeadOptimizer<2> o(0.001);
+
+    // horrible start values
+    Vec2f a(2, 1);
+    Vec2f b(2.001, 0);
+    Vec2f c(1000000, -200);
+
     o.step(a, f(a));
     o.step(b, f(b));
     Vec2f v = o.step(c, f(c));
-    for (int i=0; i<100; i++) {
+
+    while (!o.done()) {
         v = o.step(v, f(v));
     }
-    float tolerance = 0.01;
+
+    float tolerance = 0.001;
     REQUIRE(abs(v[0]) > 1.5-tolerance);
     REQUIRE(abs(v[0]) < 1.5+tolerance);
     REQUIRE(abs(v[1]) > -tolerance);

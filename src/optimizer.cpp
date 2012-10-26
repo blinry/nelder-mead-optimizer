@@ -1,3 +1,4 @@
+#include <ctime>
 #include <vector>
 #include <map>
 #include <algorithm>
@@ -85,6 +86,13 @@ public:
         }
         return false;
     }
+    float length() {
+        float sum = 0;
+        for (int i=0; i<N; i++) {
+            sum += coords[i]*coords[i];
+        }
+        return pow(sum, 0.5);
+    }
 private:
     float coords[N];
 };
@@ -119,36 +127,41 @@ class ValueDB {
 template <unsigned int N>
 class NelderMeadOptimizer {
     public:
-        NelderMeadOptimizer() {
+        NelderMeadOptimizer(float termination_distance=0.001) {
+            srand(time(NULL));
             alpha = 1;
             gamma = 2;
             rho = -0.5;
             sigma = 0.5;
+            this->termination_distance = termination_distance;
         }
         // used in `step` to sort the vectors
         bool operator()(const Vector<N>& a, const Vector<N>& b) {
             return db.lookup(a) < db.lookup(b);
         }
-        float best_worst_difference() {
-            return f(vectors[N]) - f(vectors[0]);
+        // termination criteria: each pair of vectors in the simplex has to
+        // have a distance of at most `termination_distance`
+        bool done() {
+            for (int i=0; i<N+1; i++) {
+                for (int j=0; j<N+1; j++) {
+                    if (i==j) continue;
+                    if ((vectors[i]-vectors[j]).length() > termination_distance) {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
         Vector<N> step(Vector<N> vec, float score) {
             db.insert(vec, score);
             try {
-                Vector<N> result;
-                // as long as we don't have enough vectors, request random ones,
-                // with coordinates between 0 and 1.
                 if (vectors.size() < N+1) {
                     vectors.push_back(vec);
-                    for (int i = 0; i<N; ++i) {
-                        result[i] = 0.001*(rand()%1000);
-                    }
                 }
 
                 // otherwise: optimize!
                 if (vectors.size() == N+1) {
-                    // TODO prevent infinite loops
-                    while(true) {
+                    while(!done()) {
                         sort(vectors.begin(), vectors.end(), *this);
                         Vector<N> cog; // center of gravity
                         for (int i = 1; i<=N; i++) {
@@ -182,9 +195,23 @@ class NelderMeadOptimizer {
                             }
                         }
                     }
-                }
 
-                return result;
+                    // algorithm is terminating, output: simplex' center of gravity
+                    Vector<N> cog;
+                    for (int i = 0; i<=N; i++) {
+                        cog += vectors[i];
+                    }
+                    return cog/(N+1);
+                } else {
+                    // as long as we don't have enough vectors, request random ones,
+                    // with coordinates between 0 and 1. If you want other start vectors,
+                    // simply ignore these and use `step` on the vectors you want.
+                    Vector<N> result;
+                    for (int i = 0; i<N; ++i) {
+                        result[i] = 0.001*(rand()%1000);
+                    }
+                    return result;
+                }
             } catch (Vector<N> v) {
                 return v;
             }
@@ -194,6 +221,7 @@ class NelderMeadOptimizer {
             return db.lookup(vec);
         }
         float alpha, gamma, rho, sigma;
+        float termination_distance;
         vector<Vector<N> > vectors;
         ValueDB<N> db;
 };
