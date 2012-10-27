@@ -20,4 +20,4 @@ Usage
 
 See `t/test.cpp` for more examples. 
 
-The optimizer works with float values. It is `done()` when each pair of coordinates is at most `precision` away from each other.
+The optimizer works with float values. It is `done()` when each pair of candidates is at most `precision` away from each other.
