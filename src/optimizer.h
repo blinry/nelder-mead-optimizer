@@ -156,6 +156,11 @@ class NelderMeadOptimizer {
             }
             return true;
         }
+        void insert(Vector<N> vec) {
+            if (vectors.size() < N+1) {
+                vectors.push_back(vec);
+            }
+        }
         Vector<N> step(Vector<N> vec, float score) {
             db.insert(vec, score);
             try {
