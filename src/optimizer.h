@@ -1,6 +1,7 @@
 #include <ctime>
 #include <vector>
 #include <map>
+#include <cmath>
 #include <algorithm>
 using namespace std;
 
@@ -142,6 +143,9 @@ class NelderMeadOptimizer {
         // termination criteria: each pair of vectors in the simplex has to
         // have a distance of at most `termination_distance`
         bool done() {
+            if (vectors.size() < N) {
+                return false;
+            }
             for (int i=0; i<N+1; i++) {
                 for (int j=0; j<N+1; j++) {
                     if (i==j) continue;

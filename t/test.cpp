@@ -1,6 +1,5 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
-#include <cmath>
 #include "../src/optimizer.h"
 
 TEST_CASE("vector/operations", "") {
