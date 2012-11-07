@@ -3,16 +3,16 @@
 #include "../src/optimizer.h"
 
 TEST_CASE("vector/operations", "") {
-    Vector<3> a(1,2,3);
-    Vector<3> b(1,2,3);
-    Vec3f d;
+    Vector a(1,2,3);
+    Vector b(1,2,3);
+    Vector d;
 
     d = a+b;
-    Vector<3> c(2,4,6);
+    Vector c(2,4,6);
     REQUIRE(d == c);
 
     d = a*3;
-    Vector<3> c2(3,6,9);
+    Vector c2(3,6,9);
     REQUIRE(d == c2);
 
     d = c2/3;
@@ -23,32 +23,34 @@ TEST_CASE("vector/operations", "") {
 }
 
 TEST_CASE("nmo/create", "") {
-    NelderMeadOptimizer<2> o;
+    NelderMeadOptimizer o(2);
 }
 
 TEST_CASE("nmo/syntax", "") {
-    NelderMeadOptimizer<2> o;
+    NelderMeadOptimizer o(2);
 
-    Vec2f a(0.5, 0.5);
-    Vec2f new_values = o.step(a, 1);
+    Vector a(0.5, 0.5);
+    Vector new_values = o.step(a, 1);
 }
 
 // test all operations in a complete run
 TEST_CASE("nmo/operations", "") {
-    NelderMeadOptimizer<2> o;
-    Vec2f a(0,0);
-    Vec2f b(1,0);
-    Vec2f c(0,1);
-    Vec2f d(1,1);
-    Vec2f e(1.5,1.5);
-    Vec2f f(0,2);
-    Vec2f g(0.75,0.5);
-    Vec2f h(1,0.5);
-    Vec2f i(0.5,1);
+    NelderMeadOptimizer o(2);
+    Vector a(0,0);
+    Vector b(1,0);
+    Vector c(0,1);
+    Vector d(1,1);
+    Vector e(1.5,1.5);
+    Vector f(0,2);
+    Vector g(0.75,0.5);
+    Vector h(1,0.5);
+    Vector i(0.5,1);
 
     o.step(b,0.1);
     o.step(a,0);
-    Vec2f result;
+    Vector result;
+    result.prepare(2);
+    o.step(c,0.5);
     result = o.step(c,0.5);
     REQUIRE(result == d);
     result = o.step(result,1);
@@ -63,21 +65,21 @@ TEST_CASE("nmo/operations", "") {
 
 // a function with two maxima at (1.5|0) and (-1.5|0),
 // looks like camel humps ;-)
-float f(Vec2f v) {
+float f(Vector v) {
     float x = v[0];
     float y = v[1];
     return ((-x*x*x*x+4.5*x*x+2)/pow(2.71828,2*y*y));
 }
 
 TEST_CASE("nmo/functionality", "") {
-    NelderMeadOptimizer<2> o(0.001);
+    NelderMeadOptimizer o(2, 0.001);
 
     // horrible start values
-    o.insert(Vec2f(2, 1));
-    o.insert(Vec2f(2.001, 0));
-    o.insert(Vec2f(1000000, -200));
+    o.insert(Vector(2, 1));
+    o.insert(Vector(2.001, 0));
+    o.insert(Vector(1000000, -200));
 
-    Vec2f v(2, 1);
+    Vector v(2, 1);
 
     while (!o.done()) {
         float score = f(v);
