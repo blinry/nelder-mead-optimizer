@@ -73,16 +73,15 @@ TEST_CASE("nmo/functionality", "") {
     NelderMeadOptimizer<2> o(0.001);
 
     // horrible start values
-    Vec2f a(2, 1);
-    Vec2f b(2.001, 0);
-    Vec2f c(1000000, -200);
+    o.insert(Vec2f(2, 1));
+    o.insert(Vec2f(2.001, 0));
+    o.insert(Vec2f(1000000, -200));
 
-    o.step(a, f(a));
-    o.step(b, f(b));
-    Vec2f v = o.step(c, f(c));
+    Vec2f v(2, 1);
 
     while (!o.done()) {
-        v = o.step(v, f(v));
+        float score = f(v);
+        v = o.step(v, score);
     }
 
     float tolerance = 0.001;
