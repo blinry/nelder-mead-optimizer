@@ -103,7 +103,7 @@ public:
         for (int i=0; i<dimension(); i++) {
             sum += coords[i]*coords[i];
         }
-        return pow(sum, 0.5);
+        return pow(sum, 0.5f);
     }
 private:
     vector<float> coords;
