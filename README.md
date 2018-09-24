@@ -1,7 +1,7 @@
 Description
 -----------
 
-Flexible Nelder-Mead-Optimizer with a simple interface.
+Flexible Nelder-Mead-Optimizer with a simple interface, that tries to maximize the target function.
 
 - Comes with a small test suite that ensures correct behaviour
 - Templatable to vectors of arbitrary dimension
